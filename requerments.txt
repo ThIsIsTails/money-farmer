@@ -1,0 +1,2 @@
+discord.py==1.7.3 # Main
+loguru==0.5.3 # Logger
