@@ -5,14 +5,10 @@ from configparser import ConfigParser
 import time
 
 c = ConfigParser()
-text = None
-try:
-        file = open("settings.ini", "r")
-        text = file.read()
-        file.close()
-        del file
-except:
-        text = ""
+file = open("settings.ini", "r")
+text = file.read()
+file.close()
+del file
 
 #money_cathced = 0
 
@@ -38,18 +34,11 @@ if text == "":
 	logger.info("Good. Now enter channel id where you can send command")
 	channelID = int(input("Channel ID: "))
 
-	commands = []
-	while True:
-		logger.info("Enter commands for work (Default: !work, next for next stage)")
-		command = input("Command (Default: !work): ")
-		if command == "":
-			command = "!work"
-			logger.info("Default command")
-		elif command == "next":
-			break
-
-		commands.append(command)
-
+	logger.info("Enter command for work (Default: !work)")
+	command = input("Command (Default: !work): ")
+	if command == "":
+		command = "!work"
+		logger.info("Default command")
 
 	logger.info("Enter SECONDS. This is enterval of sending commands.")
 	seconds = int(input("Seconds: "))
@@ -58,7 +47,7 @@ if text == "":
 	"token": token, # 0
 	"guild": guildID, # 1
 	"channel": channelID, # 2
-	"commands": commands, # 3
+	"command": command, # 3
 	"interval": seconds # 4
 	}
 	with open("settings.ini", "w") as w:
@@ -78,22 +67,18 @@ async def on_ready():
 
 	while True:
 		channel = None
-		commands = None
 		#guild = None
 
 		try:
 			channel = client.get_guild(int(c.get("settings", "guild"))).get_channel(int(c.get("settings", "channel")))
-			commands = c.get("settings", "commands")
 		except Exception as error:
 			logger.fatal("Can't get channel! Log: " + error)
 			logger.fatal("Shutdowning! Press ENTER for close.")
 			input()
 			exit(0)
 
-		for command in list(commands):
-			await channel.send(str(command))
-			logger.info(f"Command {command} sent.")
-		logger.info("Sleeping...")
+		await channel.send(str(c.get("settings", "command")))
+		logger.info("Command sent.")
 		time.sleep(int(c.get("settings", "interval")))
 
 
